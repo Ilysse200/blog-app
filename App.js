@@ -40,42 +40,79 @@ const data = [
   },
 ];
 
- //Below is the add New Post function inside the function
-  
-  const addNewPost = () => {
-    //validate that the title and the content are not empty
-
-    if(newPostTitle.trim() === '' ||
-      newPostContent.trim() === '' ){
-        setError('Title and content cannot be empty');
-      };
-      return;
-    }
-
-    
-
 export default function App() {
   //Define Usestates for selected post
   const [selectedPost, setSelectedPost] = useState(null);
 
   //State for the new posts's title input
-  const[newPostTitle, setNewPostTitle] = useState('Blog Title');
-  
+  const [newPostTitle, setNewPostTitle] = useState("Blog Title");
+
   //State for the error messages
   const [error, setError] = useState("");
   //State for the post being edited(null if not editing)
   const [editingPost, setEditingPost] = useState(null);
 
   //State to keep track of the post content
-  const [newPostContent, setNewPostContent] = useState('Hello, I am the blog content');
-  
+  const [newPostContent, setNewPostContent] = useState(
+    "Hello, I am the blog content"
+  );
+
+  //State for the list of posts
+  const [posts, setPosts] = useState(data);
+
   {
     /* Add new post form (only if not viewing or 
     editing) */
   }
+
+  //Below is the add New Post function inside the function
+
+  const addNewPost = () => {
+    //validate that the title and the content are not empty
+
+    if (newPostTitle.trim() === "" || newPostContent.trim() === "") {
+      setError("Title and content cannot be empty");
+      return;
+    } else {
+      setError("");
+    }
+    //Generate a new Id for the new post
+
+    const id = posts.length > 0 ? Math.max(...posts.map((p) => p.id)) + 1 : 1;
+
+    //Create a new post object
+
+    const newPost = {
+      id,
+      title: newPostTitle,
+      content: newPostContent,
+    };
+
+    //Add the new Posts to the new Array
+    setPosts([...posts, newPost]);
+
+    //Clear the input fields
+    setNewPostTitle("");
+    setNewPostContent("");
+  };
   
- 
-  
+  //Function to render each post item to the flatlist
+
+  const renderItem = ({item}) => (
+    <TouchableOpacity
+    onPress={() => setSelectedPost(item)}
+
+    //Show post details on press
+    >
+      <View style={styles.postContainer}>
+        <Text style={styles.postTitle}>
+          {item.title}
+          </Text>
+          <View style={{width:280}}></View>
+      </View>
+      
+    </TouchableOpacity>
+  )
 
   //Main render
   return (
@@ -86,38 +123,40 @@ export default function App() {
       </View>
 
       {/* Selected post details view */}
-
-      {
-    selectedPost === null && editingPost === null && (
-      <View style={styles.formContainer}>
-        {/* Error Message */}
-        {error !== "" && <Text style={styles.errorText}>{error}</Text>}
-
-        {/* Title Input*/}
-        <TextInput
-          style={styles.input}
-          placeholder="Enter Post Title"
-          value={newPostTitle}
-          onChangeText={setNewPostTitle}
+      {/**Lists of posts (if not editing posts ) */}
+      {!selectedPost && !editingPost ? (
+        <FlatList
+          data={posts}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
         />
+      ) : null}
 
-        {/* Content input */}
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Enter Post Content"
-          value={newPostContent}
-          onChangeText={setNewPostContent}
-          multiline={true}
-        />
-        {/*Add post button */}
-        <Button title="Add new Post"
-          onPress={()=>addNewPost()}
-        />
-      </View>
-    )
-  }
+      {selectedPost === null && editingPost === null && (
+        <View style={styles.formContainer}>
+          {/* Error Message */}
+          {error !== "" && <Text style={styles.errorText}>{error}</Text>}
 
-      
+          {/* Title Input*/}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Post Title"
+            value={newPostTitle}
+            onChangeText={setNewPostTitle}
+          />
+
+          {/* Content input */}
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Enter Post Content"
+            value={newPostContent}
+            onChangeText={setNewPostContent}
+            multiline={true}
+          />
+          {/*Add post button */}
+          <Button title="Add new Post" onPress={() => addNewPost()} />
+        </View>
+      )}
     </View>
   );
 }
@@ -180,7 +219,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   //Additional style for multi-line text area
-  textArea:{
+  textArea: {
     height: 100,
+  },
+
+  //Style for the post title
+  postTitle:{
+    fontSize:18,
+    fontWeight:'bold',
+    marginBottom:10,
   }
 });
