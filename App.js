@@ -108,9 +108,16 @@ export default function App() {
         <Text style={styles.postTitle}>
           {item.title}
           </Text>
-          <View style={{width:280}}></View>
+          <View style={{width:280}}>
+            <Text style={styles.postContent}>
+              {item.content}
+            </Text>
       </View>
-      
+      <View style={{
+        flexDirection: 'row',
+        alignSelf: 'flex-end'
+      }}></View>
+      </View>
     </TouchableOpacity>
   )
 
